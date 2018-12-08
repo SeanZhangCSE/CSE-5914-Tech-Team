@@ -29,7 +29,6 @@
     <h1>Ansible Tutorial</h1>
     <h3>Installation</h3>
     <p class="outer"></p>
-    <h3>Modules</h3>
     <p class="outer"></p>
     <h3>Playbooks</h3>
     <p class="outer">
@@ -84,6 +83,45 @@ tasks:
         Handlers are lists of tasks, not really any different from regular tasks,
         that are referenced by a globally unique name, and are notified by notifiers. 
     </p>
+    
+    <h4>Modules</h4>
+    <div class="inner">
+        Modules (also referred to as "task plugins" or "library plugins" are descrete units of code that can be u\
+sed from the command line or in a playbook task. Modules support taking arguments and most follow a key-value f\
+ormat. All modules return JSON format data. Modules should be idempotent and hsould only run if current state !\
+= desired state.
+        <br><br>
+        Command Line Example:
+    </div>
+    <div class="code">
+        $ ansible webservers -m service -a "name=httpd state=started"
+        $ ansible webservers ping
+        $ ansible webservers -m command -a "/sbin/reboot -t now"
+    </div>
+    <div class="inner">
+        <br>
+        Playbook Example:
+    </div>
+    <div class="code">
+        name: reboot the servers
+        action: command /sbin/reboot -t now
+    </div>
+    <div class="inner">
+        <br>
+        Yaml Example:
+    </div>
+    <div class="code">
+        name: restart webserver
+        service:
+            name: httpd
+            state: restarted
+    </div>
+    <div class="inner">
+        <br>
+        Remember: the real power of Ansible comes from using modules in playbooks, but quick, one-time task may u\
+se Ad-Hoc commands with ease.
+    </div>
+
     <h3>Roles</h3>
     <p class="outer"></p>
     <h3>Possible Use Cases</h3>
