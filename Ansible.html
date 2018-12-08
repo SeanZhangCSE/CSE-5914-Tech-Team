@@ -27,11 +27,124 @@
 </head>
 <body>
     <h1>Ansible Tutorial</h1>
-    
     <h3>Installation</h3>
+    <p class="outer">
+        Configuration management systems are designed to make controlling large numbers of servers easy for administrators and operations teams.
+     They allow you to control many different systems in an automated way from one central location.
+While there are many popular configuration management systems available for Linux systems, such as Chef and Puppet, these are often more complex than many people want or need.
+ Ansible is a great alternative to these options because it requires a much smaller overhead to get started.
+    </p>
+    <h4>Step 1: Installing Ansible</h4>
+    <p class="inner">
+        To begin using Ansible as a means of managing your various servers, you need to install the Ansible software on at least one machine.
+To get the latest version of Ansible for Ubuntu, you can add the project's PPA (personal package archive) to your system. Before doing this, though, you should first update your package index and install the software-properties-common package. This software will make it easier to manage this and other independent software repositories:
+    </p>
+    <div class="code">
+        sudo apt update
+
+
+sudo apt install software-properties-common
+
+            </div>
+            <p class="inner">
+                Then add the Ansible PPA by typing the following command:</p>
+<div class="code">
+                sudo apt-add-repository ppa:ansible/ansible</div>
+
+
+<p class="inner">Press ENTER to accept the PPA addition.
+Next, refresh your system's package index once again so that it is aware of the packages available in the PPA:</p>
+<div class="code">sudo apt update</div>
+
+
+<p class="inner">Following this update, you can install the Ansible software:</p>
+<h4>Step 2: Configuring SHS Access to Ansible Hosts</h4>
+<p class="inner">As mentioned previously, Ansible primarily communicates with client computers through SSH. While it certainly has the ability to handle password-based SSH authentication, using SSH keys can help to keep things simple.
+    On your Ansible server, use the cat command to print the contents of your non-root user’s SSH public key file to the terminal’s output:
+    </p>
+    <div class="code">cat ~/.ssh/id_rsa.pub</div>
+    <p class="inner">Copy the resulting output to your clipboard, then open a new terminal and connect to one of your Ansible hosts using SSH:</p>
+    <div class="code">ssh sammy@ansible_host_ip</div>
+    <p class="inner">Switch to the client machine’s root user:
+    </p>
+    <div class="code">su -</div>
+    <p class="inner">As the root user, open the authorized_keys within the ~/.ssh directory:</p>
+    <div class="code">nano ~/.ssh/authorized_keys</div>
+    <p class="inner">In the file, paste your Ansible server user’s SSH key, then save the file and close the editor (press CTRL + X, Y, then ENTER). Then run the exit command to return to the host’s non-root user:</p>
+<div class="code">exit</div>
+    <h4>Step 3: Setting up Ansible Hosts</h4>
+    <p class="inner">Ansible keeps track of all of the servers that it knows about through a hosts file. We need to set up this file first before we can begin to communicate with our other computers.
+        Open the file with sudo privileges, like this:</p>
+        <div class="code">sudo nano /etc/ansible/hosts</div>
+        <p class="inner">Inside the file, you will see a number of example configurations that have been commented out (with a #preceding each line). These examples won’t actually work for us since the hosts listed in each one are made up. We will, however, keep these examples in the file to help us with configuration if we want to implement more complex scenarios in the future.
+            The hosts file is fairly flexible and can be configured in a few different ways. The syntax we are going to use, though, looks like this:</p>
+<div class="code">[group_name]
+    alias ansible_ssh_host=your_server_ip
+    </div>
+    <p class="inner">In this example, group_name is an organizational tag that lets you refer to any servers listed under it with one word, while alias is just a name to refer to one specific server.
+        So, in our scenario, we are imagining that we have three servers we are going to control with Ansible. At this point, these servers are accessible from the Ansible server by typing:
+        </p>
+        <div class="code">ssh root@ansible_host_ip
+        </div>
+        <p class="inner">You should not be prompted for a password if you have set this up correctly. For the purpose of demonstration, we will assume that our hosts' IP addresses are 203.0.113.1, 203.0.113.2, and 203.0.113.3. We will set this up so that we can refer to these individually as host1, host2, and host3, or as a group with the name servers.
+            This is the block that we should add to our hosts file to accomplish this:
+            </p>
+            <div class="code">/etc/ansible/hosts
+                [servers]
+                host1 ansible_ssh_host=203.0.113.1
+                host2 ansible_ssh_host=203.0.113.2
+                host3 ansible_ssh_host=203.0.113.3
+                </div>
+            <h4>Step 4: Using Ansible Commands</h4>
+            <p class="inner">Now that we have our hosts set up and enough configuration details to allow us to successfully connect to our hosts, we can try out our very first command.
+                Ping all of the servers you configured by typing:
+                </p>
+                <div class="code">
+                    ansible -m ping all
+
+
+Ping output
+host1 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+
+host3 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+
+host2 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+                </div>
+    <p class="inner">This is a basic test to make sure that Ansible has a connection to all of its hosts.
+        The all means all hosts. We could just as easily specify a group:</p>
+        <div class="code">ansible -m ping servers
+        </div>
+        <p class="inner">We could also specify an individual host:
+        </p>
+        <div class="code">ansible -m ping host1</div>
+        <p class="inner">We can specify multiple hosts by separating them with colons:</p>
+<div class="code">ansible -m ping host1:host2</div>
+<p class="inner"> The -m ping portion of the command is an instruction to Ansible to use the "ping" module. These are basically commands that you can run on your remote hosts. The ping module operates in many ways like the normal ping utility in Linux, but instead it checks for Ansible connectivity.
+    The ping module doesn't really take any arguments, but we can try another command to see how that works. We pass arguments into a script by typing -a.
+    The "shell" module lets us send a terminal command to the remote host and retrieve the results. For instance, to find out the memory usage on our host1 machine, we could use:
+    </p>
+    <div class="code">ansible -m shell -a 'free -m' host1
+
+
+        Shell output
+        host1 | SUCCESS | rc=0 >>
+                     total       used       free     shared    buffers     cached
+        Mem:          3954        227       3726          0         14         93
+        -/+ buffers/cache:        119       3834
+        Swap:            0          0          0
+        </div>
+        <p class="inner">With that, your Ansible server configured and you can successfully communicate and control your hosts.</p>
+                <h3>Modules</h3>
     <p class="outer"></p>
-    <p class="outer"></p>
-    
     <h3>Playbooks</h3>
     <p class="outer">
         Playbooks are the basis for configuration, and multi-machine deployment. Playbooks can declare configuration, 
@@ -40,7 +153,6 @@
         and are used to push out configuration to new machines. Playbooks are files which are written using YAML, each playbook
         contains one or more plays. A play maps a group of hosts to Ansible tasks, and tasks in their simplest form are calls to modules.
     </p>
-    
     <h4>Plays</h4>
     <p class="inner">
         The beginning of a play is used to specify on which hosts to run the tasks, and with what user. 
@@ -56,7 +168,6 @@ remote_user: root
         of the play, thus it will not receive any more commands to run. All modules that are run in a playbook, should be idempotent,
         and thus the playbook as a whole should be idempotent and running it multiple times should leave the machines in the desired state.
     </p>
-    
     <h4>Tasks</h4>
     <p class="inner">
         A task begins with a human readable name to describe what the task does. Following the name, the task specifies a module to run.
@@ -87,41 +198,6 @@ tasks:
         Handlers are lists of tasks, not really any different from regular tasks,
         that are referenced by a globally unique name, and are notified by notifiers. 
     </p>
-    
-    <h3>Modules</h3>
-    <div class="inner">
-        Modules (also referred to as "task plugins" or "library plugins" are descrete units of code that can be used from the command line or in a playbook task. Modules support taking arguments and most follow a key-value format. All modules return JSON format data. Modules should be idempotent and hsould only run if current state != desired state.
-        <br><br>
-        Command Line Example:
-    </div>
-    <div class="code">
-        $ ansible webservers -m service -a "name=httpd state=started"
-        $ ansible webservers ping
-        $ ansible webservers -m command -a "/sbin/reboot -t now"
-    </div>
-    <div class="inner">
-        <br>
-        Playbook Example:
-    </div>
-    <div class="code">
-        name: reboot the servers
-        action: command /sbin/reboot -t now
-    </div>
-    <div class="inner">
-        <br>
-        Yaml Example:
-    </div>
-    <div class="code">
-        name: restart webserver
-        service:
-            name: httpd
-            state: restarted
-    </div>
-    <div class="inner">
-        <br>
-        Remember: the real power of Ansible comes from using modules in playbooks, but quick, one-time task may use Ad-Hoc commands with ease.
-    </div>
-
     <h3>Roles</h3>
     <p class="outer"></p>
     <h3>Possible Use Cases</h3>
