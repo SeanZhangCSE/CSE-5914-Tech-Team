@@ -1,6 +1,6 @@
 # CSE-5914-Tech-Team
-### Team: Emmet Murray, David O'Mullan, Revanth Tummala, Ziheng Wei, Shaocheng Zhang
-### Professor: Steven Boxwell
+#### Team: Emmet Murray, David O'Mullan, Revanth Tummala, Ziheng Wei, Shaocheng Zhang
+#### Professor: Steven Boxwell
 
 This is a tutorial meant to teach the basics of Ansible
 
