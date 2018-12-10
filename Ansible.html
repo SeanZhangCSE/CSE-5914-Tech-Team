@@ -242,6 +242,42 @@ tasks:
         templates - contains templates which can be deployed via this role.
         meta - defines some meta data for this role.
     </p>
+	
+	<h3>Modules</h3>
+    <div class="inner">
+        Modules (also referred to as "task plugins" or "library plugins" are descrete units of code that can be used from the command line or in a playbook task. Modules support taking arguments and most follow a key-value format. All modules return JSON format data. Modules should be idempotent and hsould only run if current state != desired state.
+        <br><br>
+        Command Line Example:
+    </div>
+    <div class="code">
+        $ ansible webservers -m service -a "name=httpd state=started"
+        $ ansible webservers ping
+        $ ansible webservers -m command -a "/sbin/reboot -t now"
+    </div>
+    <div class="inner">
+        <br>
+        Playbook Example:
+    </div>
+    <div class="code">
+        name: reboot the servers
+        action: command /sbin/reboot -t now
+    </div>
+    <div class="inner">
+        <br>
+        Yaml Example:
+    </div>
+    <div class="code">
+        name: restart webserver
+        service:
+            name: httpd
+            state: restarted
+    </div>
+    <div class="inner">
+        <br>
+        Remember: the real power of Ansible comes from using modules in playbooks, but quick, one-time task may use Ad-Hoc commands with ease.
+    </div>
+
+	
     <p class="outer">
         Using Roles
     </p>
